@@ -5,7 +5,14 @@ THREAT = re.compile(
     r"\b(?:i(?:'m| am) going to|i(?:'ll| will)|i want to|we(?:'ll| will)) "
     r"(?:hurt|kill|shoot|stab|attack)\s+(?:you|him|her|them|(?:the |your )?(?:agent|seller|owner))\b"
 )
-ABUSE = re.compile(r"\b(?:fuck you|you (?:are |are an |are a )?(?:idiot|fool)|you(?:'re| are) (?:an? )?(?:idiot|fool)|shut up)\b")
+ABUSE = re.compile(
+    r"\b(?:fuck you|"
+    r"you (?:are |are an? )?(?:idiot|fool|moron|stupid)|"
+    r"you(?:'re| are) (?:an? )?(?:idiot|fool|moron|stupid)|"
+    r"are you (?:(?:completely|totally) )?out of your mind|"
+    r"are you (?:crazy|mad|stupid)|"
+    r"what(?:'s| is) wrong with you|shut up)\b"
+)
 PROFANITY = re.compile(r"\b(?:damn|shit|fuck(?:ing)?|bullshit)\b")
 
 

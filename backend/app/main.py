@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .generation import generate
+from .faq import FAQUnavailable, find_exact_faq, load_faqs, match_faq
 from .intent import MODEL_PATH, classify
 from .moderation import moderate
 from .retrieval import CatalogueUnavailable, demo_mode, filters_from, load_listings, retrieve
@@ -44,7 +45,25 @@ STATIC = {
     "contact_agent": "Use the website’s contact page to reach the sales team.",
     "out_of_scope": "I can help with properties for sale, listing details and viewing enquiries.",
 }
+FRUSTRATION_REPLY = "I’m sorry this has been frustrating. What went wrong? I’ll do my best to help."
 ORDINALS = {"first": 0, "second": 1, "third": 2}
+FAQ_MATCH_THRESHOLD = 0.34
+QUESTION_START = re.compile(r"^(?:who|what|when|where|why|how|can|could|do|does|is|are|should|will)\b", re.IGNORECASE)
+PROPERTY_TERMS = re.compile(
+    r"\b(?:properties|property|houses?|homes?|apartments?|flats?|land|plots?|listings?|bedrooms?|beds?|price)\b",
+    re.IGNORECASE,
+)
+IDENTITY_QUESTION = re.compile(
+    r"\b(?:who are you|what are you|what(?:'s| is) your name|your name|"
+    r"are you (?:(?:a|an) )?(?:bot|chatbot|robot|ai|assistant)|are you human)\b",
+    re.IGNORECASE,
+)
+LISTING_ID = re.compile(r"(?<![\w-])(?:house|apartment|land)-\d+(?![\w-])", re.IGNORECASE)
+PROPERTY_SEARCH_ACTION = re.compile(
+    r"\b(?:show|search|browse|list|find me|look(?:ing)? for|available|for sale|options|"
+    r"do you have|any)\b",
+    re.IGNORECASE,
+)
 
 
 @app.get("/health")
@@ -63,6 +82,43 @@ def chat(request: ChatRequest):
         return ChatResponse(reply="I can’t assist with threatening messages.", moderation=moderation, demo=demo)
 
     prefix = "Please keep the conversation respectful. " if moderation == "directed_abuse" else ""
+    if IDENTITY_QUESTION.search(message):
+        return ChatResponse(
+            reply=prefix + "I’m Prinbot, the Prince B Realty Consult property assistant. I can help with property searches and questions about our services.",
+            intent="assistant_identity",
+            moderation=moderation,
+            demo=demo,
+        )
+
+    explicit_id_pattern = LISTING_ID.search(message)
+    ordinal = re.search(r"\b(first|second|third)\s+(?:one|listing|property)\b", message, re.IGNORECASE)
+    follow_up = bool(request.previous_query and re.match(r"^(?:and|what about|how about|only)\b", message, re.IGNORECASE))
+    pronoun_follow_up = bool(
+        request.previous_listing_ids
+        and re.search(r"\b(?:this|that|it|one|listing|place)\b", message, re.IGNORECASE)
+    )
+    listing_context = bool(explicit_id_pattern or ordinal or follow_up or pronoun_follow_up)
+    question_like = bool(QUESTION_START.search(message) or "?" in message)
+    faqs = None
+    faq_load_attempted = False
+    if not listing_context and question_like:
+        faq_load_attempted = True
+        try:
+            faqs = load_faqs()
+        except FAQUnavailable:
+            pass
+        else:
+            exact_faq = find_exact_faq(message, faqs)
+            if exact_faq:
+                return ChatResponse(
+                    reply=prefix + exact_faq["answer"],
+                    intent="faq",
+                    confidence=1.0,
+                    moderation=moderation,
+                    demo=demo,
+                    search_query=request.previous_query,
+                )
+
     try:
         intent, confidence = classify(message)
     except FileNotFoundError as error:
@@ -80,10 +136,91 @@ def chat(request: ChatRequest):
     try:
         listings = load_listings()
     except CatalogueUnavailable as error:
-        raise HTTPException(status_code=503, detail=str(error)) from error
-    explicit_id = next((item["id"] for item in listings if re.search(r"(?<![\w-])" + re.escape(item["id"]) + r"(?![\w-])", message, re.IGNORECASE)), None)
-    ordinal = re.search(r"\b(first|second|third)\s+(?:one|listing|property)\b", message, re.IGNORECASE)
-    follow_up = bool(request.previous_query and re.match(r"^(?:and|what about|how about|only)\b", message, re.IGNORECASE))
+        listings = None
+        catalogue_error = error
+    else:
+        catalogue_error = None
+
+    explicit_id = next(
+        (item["id"] for item in listings or [] if re.search(
+            r"(?<![\w-])" + re.escape(item["id"]) + r"(?![\w-])", message, re.IGNORECASE
+        )),
+        None,
+    )
+    if explicit_id:
+        listing_context = True
+
+    filters = filters_from(message, listings) if listings else {}
+    is_clear_search = bool(
+        "bedrooms" in filters
+        or "max_price" in filters
+        or (
+            "location" in filters
+            and ("property_type" in filters or PROPERTY_SEARCH_ACTION.search(message))
+        )
+        or (
+            "property_type" in filters
+            and PROPERTY_SEARCH_ACTION.search(message)
+        )
+    )
+    listing_context = listing_context or is_clear_search
+    if is_clear_search and intent != "property_details":
+        intent = "search_property"
+
+    faq_request = not listing_context and (
+        question_like
+        or intent == "faq"
+    )
+    command_action = bool(
+        re.match(r"^(?:book|schedule|arrange|reserve|call|connect|contact)\b", message, re.IGNORECASE)
+        and not question_like
+    )
+    if faq_request and not command_action:
+        if not faq_load_attempted:
+            faq_load_attempted = True
+            try:
+                faqs = load_faqs()
+            except FAQUnavailable:
+                pass
+        if faqs is None:
+            if intent == "faq":
+                intent = "faq"
+                confidence = None
+                return respond(
+                    "FAQ information is temporarily unavailable right now. Please contact Prince B Realty Consult through the website for help."
+                )
+        else:
+            faq, score, margin = match_faq(message, faqs)
+            if score >= FAQ_MATCH_THRESHOLD and margin >= 0.025:
+                intent = "faq"
+                confidence = score
+                return respond(faq["answer"])
+
+    has_listing_reference = bool(explicit_id_pattern or ordinal or follow_up or pronoun_follow_up or explicit_id)
+    has_clear_property_request = bool(
+        is_clear_search
+        or (
+            PROPERTY_TERMS.search(message)
+            and PROPERTY_SEARCH_ACTION.search(message)
+        )
+        or (
+            intent == "property_details"
+            and PROPERTY_TERMS.search(message)
+        )
+    )
+    has_agent_request = intent in {"contact_agent", "book_viewing"} and confidence >= 0.26
+    if moderation in {"directed_abuse", "mild_profanity"} and not (
+        has_listing_reference or has_clear_property_request or has_agent_request
+    ):
+        intent = "out_of_scope"
+        prefix = ""
+        return respond(FRUSTRATION_REPLY)
+
+    if listings is None:
+        if intent in {"book_viewing", "contact_agent"} and confidence >= 0.26:
+            return respond(STATIC[intent])
+        raise HTTPException(status_code=503, detail=str(catalogue_error)) from catalogue_error
+
     if not (explicit_id or ordinal or follow_up) and intent in {"book_viewing", "contact_agent"} and confidence >= 0.26:
         return respond(STATIC[intent])
     if explicit_id or ordinal:
@@ -91,6 +228,7 @@ def chat(request: ChatRequest):
     elif follow_up:
         intent, confidence = "search_property", None
     elif confidence < 0.26:
+        intent = "out_of_scope"
         return respond("Are you looking for a property or asking about a specific listing?")
     if intent in STATIC:
         return respond(STATIC[intent])

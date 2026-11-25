@@ -12,6 +12,7 @@ records, and optionally uses Gemini to write replies from those records.
 | `backend/app/moderation/` | Phrase rules for profanity, directed abuse and explicit threats. |
 | `backend/app/intent/` | Classifier loading and confidence scores. |
 | `backend/app/retrieval/` | Exact filters and TF-IDF ranking over property descriptions. |
+| `backend/app/faq.py` | Validated FAQ endpoint loading and question matching. |
 | `backend/app/generation/` | Gemini REST integration and template fallback. |
 | `artifacts/` | Baseline model and evaluation metadata. |
 
@@ -58,6 +59,19 @@ then restart. Gemini receives the current question and matched listing records.
 If Gemini is unavailable, the API returns the listing details from its template.
 Keep the key on the backend. See [Google's generateContent reference](https://ai.google.dev/api/generate-content).
 
+When `FAQS_URL` is unset, local FAQ testing reads
+`backend/app/retrieval/faqs.json` relative to the FAQ module. Start the API with
+the variable unset:
+
+```powershell
+Remove-Item Env:FAQS_URL -ErrorAction SilentlyContinue
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
+
+If `FAQS_URL` is set, that API is authoritative; a failed request does not fall
+back to the local JSON file. Plain HTTP is accepted only for loopback hosts
+during local development. The deployed content backend URL must use HTTPS.
+
 The moderation rules cover the example phrases and common variants. Extend
 their coverage using reviewed Ghanaian English and Pidgin examples. Retrieval
 ranks by word overlap after filtering. Preferences phrased in unrelated words
@@ -70,10 +84,21 @@ Set Render environment variables:
 
 ```
 LISTINGS_URL=https://jaydeladem.github.io/prince-b-realty-consult/listings.json
+FAQS_URL=https://<content-backend-host>/api/v1/faqs
 CORS_ORIGINS=https://jaydeladem.github.io
 GEMINI_API_KEY=<your backend-only key>
 GEMINI_MODEL=<your supported Gemini model ID>
 ```
+
+`FAQS_URL` is the full HTTPS URL of the public FAQ endpoint on the separate
+website content backend; it is independent of `LISTINGS_URL`. The endpoint must
+return a JSON array of published records with `id`, `category`, `question`,
+`answer` and boolean `featured` fields. The chatbot fetches FAQs with an
+8-second timeout and validates the response. It returns approved FAQ answers
+directly, asks for clarification on uncertain matches, and keeps property
+searches available if the FAQ service is unavailable. Set the placeholder host
+to the content backend's actual public hostname in the existing chatbot Render
+service.
 
 The live catalogue is fetched for each request with an 8-second timeout, a 2 MB
 limit and record validation. `LISTINGS_URL` selects live mode; if it is unset,

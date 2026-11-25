@@ -1,0 +1,155 @@
+text,intent
+"Show me 3-bedroom houses for sale in Tema under GH₵900,000",search_property
+I dey look for land wey I fit buy in Kasoa,search_property
+Looking for a cheap apartment in East Legon,search_property
+Find plots around Prampram,search_property
+Any land for sale in Assin Foso?,search_property
+These damn houses are expensive. Show me cheaper ones,search_property
+Show me a damn 3-bedroom house in Tema,search_property
+I need a home near Tema with a garage,search_property
+Do you have houses under 500k?,search_property
+I want to buy an apartment,search_property
+Find me a two-bedroom flat in Kasoa,search_property
+What houses are available in Tema?,search_property
+"Anything below GH₵400,000 in Kasoa?",search_property
+Search for a house in a gated community,search_property
+I want land to build on,search_property
+Any affordable plots for sale?,search_property
+List properties under one million,search_property
+Show houses with a study,search_property
+I want a four bedroom house to buy,search_property
+Which apartments are available for sale?,search_property
+Land for sale please,search_property
+I beg show me flats around Kasoa,search_property
+Any 2-bed apartments up to 400k?,search_property
+Browse properties in Prampram,search_property
+Any homes with a big garden?,search_property
+Show me land below 200k,search_property
+Do you sell apartments in Tema?,search_property
+Houses in East Legon for up to 1.5m,search_property
+Show me options with parking,search_property
+Can you find a residential plot with road access?,search_property
+Does the second one have a garage?,property_details
+Is P102 still available?,property_details
+How much is P101?,property_details
+Tell me more about listing P105,property_details
+How many bedrooms does that property have?,property_details
+What is the asking price for this house?,property_details
+Does this flat have a balcony?,property_details
+Where exactly is this apartment located?,property_details
+Does the first one come furnished?,property_details
+Is the third listing sold already?,property_details
+What amenities are included with P103?,property_details
+How big is the plot P104?,property_details
+Do you have more photos of this place?,property_details
+Does this place have a dedicated study?,property_details
+What is the status of P106?,property_details
+Is parking included with this one?,property_details
+This house get gate?,property_details
+How many bathrooms does that listing have?,property_details
+Can you give me the details for P104?,property_details
+What is the price of the second listing?,property_details
+Is this particular home available?,property_details
+Does that plot have road access?,property_details
+Is P101 detached?,property_details
+What does the property description say?,property_details
+Can I book a viewing?,book_viewing
+I want to see this house in person,book_viewing
+Schedule a tour for P101,book_viewing
+Can I come see the first one on Saturday?,book_viewing
+Arrange a property viewing for me,book_viewing
+When can I visit this flat?,book_viewing
+I want an appointment to see this place,book_viewing
+Make a viewing appointment please,book_viewing
+Can I inspect the property tomorrow?,book_viewing
+I dey want come see the place,book_viewing
+Book me a site visit,book_viewing
+Can we set a time to tour the apartment?,book_viewing
+Do you offer on-site viewings?,book_viewing
+I'd like to schedule a viewing for Friday,book_viewing
+Can I take a tour this weekend?,book_viewing
+Is a viewing possible next week?,book_viewing
+Let me book an inspection,book_viewing
+Can I go and view the house today?,book_viewing
+Please reserve a viewing slot,book_viewing
+Help me arrange an in-person tour,book_viewing
+How do I contact the agent?,contact_agent
+Can somebody call me about this listing?,contact_agent
+Connect me to the sales team,contact_agent
+Give me the agent's number,contact_agent
+I want to speak to a human,contact_agent
+Who can I talk to about P103?,contact_agent
+Can you put me in touch with the seller?,contact_agent
+Please ask an agent to call me,contact_agent
+What is your sales email?,contact_agent
+Get me through to customer support,contact_agent
+I need to talk to someone from sales,contact_agent
+Can I WhatsApp the property agent?,contact_agent
+Where is the contact page?,contact_agent
+I beg link me to the agent,contact_agent
+How can I reach the sales office?,contact_agent
+Is there a number I can call for help?,contact_agent
+Let me talk to your representative,contact_agent
+I need your office contact,contact_agent
+Can a real person answer me?,contact_agent
+Give me the contact details for the sales office,contact_agent
+How does the buying process work?,faq
+What steps do buyers usually follow?,faq
+How do I use this website?,faq
+What information do I need to start a purchase?,faq
+Do you have a general guide for first-time buyers?,faq
+What happens after I find a place I like?,faq
+How do I make an offer?,faq
+Do all prices use Ghana cedis?,faq
+How does payment work on your site?,faq
+Can someone explain how your platform works?,faq
+Do I have to register before browsing?,faq
+What does reserved mean on listings?,faq
+Why do some properties have no price?,faq
+What types of properties do you list?,faq
+How do I use your search filters?,faq
+How do I know which listings are for sale?,faq
+Are there general instructions for purchasing a property?,faq
+Where is the buyer guide?,faq
+What does the term detached house mean?,faq
+How can I submit an enquiry via the website?,faq
+Hi,greeting
+Hello,greeting
+Hey there,greeting
+Good morning,greeting
+Good afternoon,greeting
+Good evening,greeting
+Hi there,greeting
+Hello there,greeting
+Hey,greeting
+Greetings,greeting
+Chale how far,greeting
+How are you today?,greeting
+Hope you're doing well,greeting
+Good day,greeting
+Hello chatbot,greeting
+Hi everyone,greeting
+"Hello, how are you?",greeting
+Morning!,greeting
+Evening all,greeting
+"Boss, how be?",greeting
+Can you fix my laptop?,out_of_scope
+Who won the football match?,out_of_scope
+Write a birthday poem for my sister,out_of_scope
+Help me cook jollof rice,out_of_scope
+What is the weather today?,out_of_scope
+Teach me to play guitar,out_of_scope
+Give me a cake recipe,out_of_scope
+Book a flight to London,out_of_scope
+Tell me a joke,out_of_scope
+Who is the president?,out_of_scope
+Show me the latest football scores,out_of_scope
+Explain photosynthesis,out_of_scope
+Can you check my exam results?,out_of_scope
+Help me design a logo,out_of_scope
+I need a pizza delivered,out_of_scope
+Please translate my homework,out_of_scope
+How do I reset my router?,out_of_scope
+Suggest a movie to watch,out_of_scope
+Play me a song,out_of_scope
+Can you repair a broken phone?,out_of_scope

@@ -1,0 +1,9 @@
+[
+  {"id":"P101","title":"Three-bedroom house in Tema","location":"Tema","property_type":"house","bedrooms":3,"price_ghs":850000,"status":"active","description":"Gated community with a dedicated study and covered parking.","url":null},
+  {"id":"P102","title":"Detached house in Tema","location":"Tema","property_type":"house","bedrooms":3,"price_ghs":900000,"status":"active","description":"Detached home with a garden, garage and tiled courtyard.","url":null},
+  {"id":"P103","title":"East Legon family home","location":"East Legon","property_type":"house","bedrooms":3,"price_ghs":1200000,"status":"active","description":"Family home with a balcony and a separate study.","url":null},
+  {"id":"P104","title":"Residential plot in Prampram","location":"Prampram","property_type":"land","bedrooms":null,"price_ghs":180000,"status":"active","description":"Residential plot with road access.","url":null},
+  {"id":"P105","title":"Two-bedroom flat in Kasoa","location":"Kasoa","property_type":"apartment","bedrooms":2,"price_ghs":390000,"status":"active","description":"Flat with off-street parking and fitted kitchen.","url":null},
+  {"id":"P106","title":"Reserved house in Tema","location":"Tema","property_type":"house","bedrooms":3,"price_ghs":700000,"status":"reserved","description":"Three-bedroom house with a garage.","url":null},
+  {"id":"P107","title":"Residential plot in Assin Foso","location":"Assin Foso","property_type":"land","bedrooms":null,"price_ghs":95000,"status":"active","description":"Residential plot with road frontage.","url":null}
+]

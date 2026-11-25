@@ -46,7 +46,8 @@ Open http://127.0.0.1:8000/docs and try `POST /chat` with this JSON body.
 {"message":"Show me 3-bedroom houses for sale in Tema under GH₵900,000"}
 ```
 
-The default catalogue is fictional and returns listing P101 for this search.
+When `LISTINGS_URL` is unset, the default sample catalogue is fictional and
+returns listing P101 for this search.
 The response includes intent, moderation decision, reply source and structured
 listing records. To ask about “the second one,” pass the earlier result IDs in
 `previous_listing_ids`. To try “What about East Legon?”, pass the earlier search in
@@ -57,14 +58,29 @@ then restart. Gemini receives the current question and matched listing records.
 If Gemini is unavailable, the API returns the listing details from its template.
 Keep the key on the backend. See [Google's generateContent reference](https://ai.google.dev/api/generate-content).
 
-Set `LISTINGS_FILE` to an absolute path for a JSON catalogue with the same fields
-as `backend/app/retrieval/sample_listings.json`. Use lowercase property types and
-statuses, prices in Ghana cedis, unique IDs, and null for bedrooms on land.
-The starter uses P-number references such as P101. The site’s live API/database
-adapter, chat widget and viewing submission are integration steps. The viewing
-and contact routes direct visitors to the website’s contact page.
-
 The moderation rules cover the example phrases and common variants. Extend
 their coverage using reviewed Ghanaian English and Pidgin examples. Retrieval
 ranks by word overlap after filtering. Preferences phrased in unrelated words
 may need semantic embeddings.
+
+
+## Live website integration
+
+Set Render environment variables:
+
+```
+LISTINGS_URL=https://jaydeladem.github.io/prince-b-realty-consult/listings.json
+CORS_ORIGINS=https://jaydeladem.github.io
+GEMINI_API_KEY=<your backend-only key>
+GEMINI_MODEL=<your supported Gemini model ID>
+```
+
+The live catalogue is fetched for each request with an 8-second timeout, a 2 MB
+limit and record validation. `LISTINGS_URL` selects live mode; if it is unset,
+the local sample catalogue is used. A failed configured live fetch returns HTTP
+503 and never falls back to fictional records. Keep the trained model artifact,
+existing Render service and start command. No retraining is needed when the
+catalogue changes. IDs may include letters, digits, underscores and hyphens.
+Null values are unknown; only active listings appear in searches. The browser
+sends `previous_query` and `previous_listing_ids`, and stores the returned
+`search_query` for future requests. Never place `GEMINI_API_KEY` in website files.
